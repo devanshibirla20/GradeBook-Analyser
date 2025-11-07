@@ -1,0 +1,181 @@
+# --------------------------------------------------------------
+# Title      : GradeBook Analyzer
+# Course     : Programming for Problem Solving using Python
+# Author     : [Your Name Here]
+# Date       : [Insert Date]
+# Description: A Python-based GradeBook Analyzer to input,
+#              analyze, and display student marks and grades.
+# --------------------------------------------------------------
+
+# ---- Task 1: Project Setup and Initialization ----
+def display_menu():
+    print("\n=== GRADEBOOK ANALYZER ===")
+    print("1. Enter Student Data")
+    print("2. Analyze Grades")
+    print("3. Display Results Table")
+    print("4. Exit")
+
+# ---- Task 2: Data Entry (Manual Input) ----
+def input_student_data():
+    marks = {}
+    while True:
+        try:
+            n = int(input("\nEnter number of students: "))
+            if n <= 0:
+                print("Please enter a positive number.")
+                continue
+            break
+        except ValueError:
+            print("Invalid input! Enter a valid integer.")
+
+    for i in range(n):
+        name = input(f"Enter name of student {i+1}: ").strip().title()
+        while True:
+            try:
+                score = float(input(f"Enter marks for {name}: "))
+                if 0 <= score <= 100:
+                    marks[name] = score
+                    break
+                else:
+                    print("Marks must be between 0 and 100.")
+            except ValueError:
+                print("Invalid marks! Please enter a numeric value.")
+    return marks
+
+# ---- Task 3: Statistical Analysis Functions ----
+def calculate_average(marks_dict):
+    """Return the average marks of students."""
+    if not marks_dict:
+        return 0
+    return sum(marks_dict.values()) / len(marks_dict)
+
+def calculate_median(marks_dict):
+    """Return the median marks of students."""
+    if not marks_dict:
+        return 0
+    scores = sorted(marks_dict.values())
+    n = len(scores)
+    mid = n // 2
+    if n % 2 == 1:
+        return scores[mid]
+    else:
+        return (scores[mid - 1] + scores[mid]) / 2
+
+def find_max_score(marks_dict):
+    """Return the students with the highest marks."""
+    if not marks_dict:
+        return [], 0
+    max_score = max(marks_dict.values())
+    max_students = [name for name, m in marks_dict.items() if m == max_score]
+    return max_students, max_score
+
+def find_min_score(marks_dict):
+    """Return the students with the lowest marks."""
+    if not marks_dict:
+        return [], 0
+    min_score = min(marks_dict.values())
+    min_students = [name for name, m in marks_dict.items() if m == min_score]
+    return min_students, min_score
+
+# ---- Task 4: Grade Assignment and Distribution ----
+def assign_grades(marks_dict):
+    """Assign grades based on score."""
+    grades = {}
+    for name, score in marks_dict.items():
+        if score >= 90:
+            grade = "A"
+        elif score >= 80:
+            grade = "B"
+        elif score >= 70:
+            grade = "C"
+        elif score >= 60:
+            grade = "D"
+        else:
+            grade = "F"
+        grades[name] = grade
+    return grades
+
+def count_grade_distribution(grades_dict):
+    """Count how many students received each grade."""
+    distribution = {}
+    for grade in grades_dict.values():
+        distribution[grade] = distribution.get(grade, 0) + 1
+    return distribution
+
+# ---- Task 5: Pass/Fail Filter with List Comprehension ----
+def get_pass_fail_lists(marks_dict):
+    """Separate students into pass and fail lists."""
+    passed_students = [name for name, m in marks_dict.items() if m >= 40]
+    failed_students = [name for name, m in marks_dict.items() if m < 40]
+    return passed_students, failed_students
+
+# ---- Task 6: Results Table and User Loop ----
+def display_results_table(marks_dict, grades_dict):
+    """Display formatted results of all students."""
+    print("\n" + "=" * 45)
+    print("STUDENT RESULTS TABLE")
+    print("=" * 45)
+    print(f"{'Name':<20}{'Marks':<12}{'Grade'}")
+    print("-" * 45)
+    for name, marks in marks_dict.items():
+        print(f"{name:<20}{marks:<12.2f}{grades_dict[name]}")
+    print("-" * 45)
+
+def analyze_and_display(marks):
+    """Perform full analysis and display results."""
+    if not marks:
+        print("⚠️ No data available to analyze.")
+        return
+
+    print("\n--- STATISTICAL ANALYSIS ---")
+    print(f"Average Marks: {calculate_average(marks):.2f}")
+    print(f"Median Marks : {calculate_median(marks):.2f}")
+
+    top_students, max_score = find_max_score(marks)
+    low_students, min_score = find_min_score(marks)
+    print(f"Highest Score: {max_score} by {', '.join(top_students)}")
+    print(f"Lowest Score : {min_score} by {', '.join(low_students)}")
+
+    grades = assign_grades(marks)
+    distribution = count_grade_distribution(grades)
+
+    print("\n--- GRADE DISTRIBUTION ---")
+    for grade, count in sorted(distribution.items(), reverse=True):
+        print(f"Grade {grade}: {count} student(s)")
+
+    passed, failed = get_pass_fail_lists(marks)
+    print("\n--- PASS / FAIL SUMMARY ---")
+    print(f"Passed Students ({len(passed)}): {', '.join(passed) if passed else 'None'}")
+    print(f"Failed Students ({len(failed)}): {', '.join(failed) if failed else 'None'}")
+
+    display_results_table(marks, grades)
+
+# ---- Main Program Loop ----
+def main():
+    """Main menu-driven program."""
+    print("Welcome to the GradeBook Analyzer!")
+    marks_data = {}
+
+    while True:
+        display_menu()
+        choice = input("Enter your choice (1-4): ").strip()
+
+        if choice == "1":
+            marks_data = input_student_data()
+        elif choice == "2":
+            analyze_and_display(marks_data)
+        elif choice == "3":
+            if marks_data:
+                grades = assign_grades(marks_data)
+                display_results_table(marks_data, grades)
+            else:
+                print("⚠️ No data available to display.")
+        elif choice == "4":
+            print("Exiting GradeBook Analyzer. Goodbye!")
+            break
+        else:
+            print("❌ Invalid choice. Please enter 1-4.")
+
+# ---- Run the Program ----
+if __name__ == "__main__":
+    main()
